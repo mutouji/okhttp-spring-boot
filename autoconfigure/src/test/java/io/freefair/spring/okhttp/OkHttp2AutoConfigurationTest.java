@@ -1,7 +1,7 @@
 package io.freefair.spring.okhttp;
 
-import okhttp3.Cache;
-import okhttp3.OkHttpClient;
+import com.squareup.okhttp.Cache;
+import com.squareup.okhttp.OkHttpClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -17,21 +17,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Lars Grefer
  */
-public class OkHttp3AutoConfigurationTest {
+public class OkHttp2AutoConfigurationTest {
 
     private ApplicationContextRunner applicationContextRunner;
 
     @Before
     public void setUp() {
         applicationContextRunner = new ApplicationContextRunner()
-                .withConfiguration(AutoConfigurations.of(OkHttp3AutoConfiguration.class));
+                .withConfiguration(AutoConfigurations.of(OkHttp2AutoConfiguration.class));
     }
 
     @Test
     public void testDefaultClient() {
         applicationContextRunner.run(context -> {
             assertThat(context).hasSingleBean(OkHttpClient.class);
-            assertThat(context.getBean(OkHttpClient.class).cache()).isNotNull();
+            assertThat(context.getBean(OkHttpClient.class).getCache()).isNotNull();
         });
     }
 
@@ -42,7 +42,7 @@ public class OkHttp3AutoConfigurationTest {
                 .run(context -> {
             assertThat(context).hasSingleBean(OkHttpClient.class);
 
-            assertThat(context.getBean(OkHttpClient.class).cache()).isNull();
+            assertThat(context.getBean(OkHttpClient.class).getCache()).isNull();
         });
     }
 
@@ -53,7 +53,7 @@ public class OkHttp3AutoConfigurationTest {
                 .run(context -> {
             assertThat(context).hasSingleBean(OkHttpClient.class);
 
-            assertThat(context.getBean(OkHttpClient.class).cache()).isEqualTo(CustomCacheConfiguration.CACHE);
+            assertThat(context.getBean(OkHttpClient.class).getCache()).isEqualTo(CustomCacheConfiguration.CACHE);
         });
     }
 
@@ -63,7 +63,7 @@ public class OkHttp3AutoConfigurationTest {
         static final Cache CACHE = new Cache(new File(""), 1);
 
         @Bean
-        public Cache okHttp3Cache() {
+        public Cache okHttp2Cache() {
             return CACHE;
         }
     }

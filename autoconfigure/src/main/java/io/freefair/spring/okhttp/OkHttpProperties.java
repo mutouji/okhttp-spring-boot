@@ -1,48 +1,46 @@
 package io.freefair.spring.okhttp;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.time.Duration;
-
-import static lombok.AccessLevel.NONE;
 
 /**
  * @author Lars Grefer
  */
-@SuppressWarnings("WeakerAccess")
-@Getter
-@Setter
+@Data
 @ConfigurationProperties(prefix = "okhttp")
 public class OkHttpProperties {
 
     /**
      * The default connect timeout for new connections.
      */
-    private Duration connectTimeout;
+    private Duration connectTimeout = Duration.ofSeconds(10);
 
     /**
      * The default read timeout for new connections.
      */
-    private Duration readTimeout;
+    private Duration readTimeout = Duration.ofSeconds(10);
 
     /**
      * The default write timeout for new connections.
      */
-    private Duration writeTimeout;
+    private Duration writeTimeout = Duration.ofSeconds(10);
 
     /**
      * The interval between web socket pings initiated by this client. Use this to
      * automatically send web socket ping frames until either the web socket fails or it is closed.
      * This keeps the connection alive and may detect connectivity failures early. No timeouts are
      * enforced on the acknowledging pongs.
-     * <p>
+     *
      * <p>The default value of 0 disables client-initiated pings.
      */
-    private Duration pingInterval;
+    private Duration pingInterval = Duration.ZERO;
 
-    @Setter(NONE)
     private Cache cache = new Cache();
 
     /**
@@ -64,37 +62,25 @@ public class OkHttpProperties {
     /**
      * @author Lars Grefer
      */
-    @Getter
-    @Setter
+    @Data
+    @Slf4j
     public static class Cache {
         /**
          * The maximum number of bytes this cache should use to store.
          */
-        private long size = 10485760;
+        private long maxSize = 10485760;
 
         /**
          * The path of the directory where the cache should be stored.
          */
-        private String directory;
+        private File directory;
 
-        private Mode mode = Mode.TEMPORARY;
-
-        /**
-         * @author Lars Grefer
-         */
-        public enum Mode {
-            /**
-             * No caching.
-             */
-            NONE,
-            /**
-             * Caching in a temporary directory.
-             */
-            TEMPORARY,
-            /**
-             * Caching in a persistent directory.
-             */
-            PERSISTENT
+        public Cache() {
+            try {
+                directory = Files.createTempDirectory("okhttp-cache").toFile();
+            } catch (IOException e) {
+                log.warn("Failed to create default temp directory", e);
+            }
         }
     }
 }
